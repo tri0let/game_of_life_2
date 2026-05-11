@@ -25,6 +25,6 @@ class Cell:
 
 class Dud:
     def __init__(self):
-        pass
+        self.state = State.OFF
     def __str__(self):
         return '~'
