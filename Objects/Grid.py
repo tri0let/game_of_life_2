@@ -115,7 +115,7 @@ class Grid(dict):
                 else:
                     print(f'{self[(i,j)]} ', end='')
         
-        print('=========================================')
+        print('=' * 50)
     
     def nbhd(self, i: int, j: int, radius: int=1, exclude_center: bool=True):
         nb = []

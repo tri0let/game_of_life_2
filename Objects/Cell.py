@@ -23,9 +23,8 @@ class Cell:
         else:
             return '.'
 
-class Dud(Cell):
+class Dud:
     def __init__(self):
-        super().__init__(State.OFF)
-
+        pass
     def __str__(self):
         return '~'
