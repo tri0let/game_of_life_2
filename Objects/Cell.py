@@ -43,6 +43,9 @@ class BinaryCell(BinaryTile):
     def flip(self):
         self.state = (self.state + 1) % 2
 
+    def id(self):
+        pass
+
 class BinaryDud(BinaryTile):
     def __init__(self) -> None:
         super().__init__(0)

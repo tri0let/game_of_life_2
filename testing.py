@@ -2,9 +2,11 @@ from Objects.Cell import *
 from Objects.System import *
 from Objects.Rule import *
 from Objects.Condition import *
+from time import sleep
 
 
 g = Grid(width=4, height=4, border_width=1, on_init=[(0,0), (1,1), (1,0)])
+g1 = Grid(width=10, height=10, on_init=0.4)
 
 g.display()
 
@@ -22,17 +24,27 @@ def nbhd(system: Grid, key: tuple[int, int]):
         for J in range(j - 1, j + 1 + 1):
             for I in range(i - 1, i + 1 + 1):
                 if (I,J) != (i,j):
-                    nb.append(system[(I,J)])
+                    nb.append(system[(I % len(system.xrange()), J % len(system.yrange()))])
         return nb
 
 
-cond = Condition[BinaryTile](lambda nbhd: HasMoreAlive(5, nbhd))
 
-r = Rule[Grid, BinaryTile, BinaryCell](nbhd, cond, BinaryCell.flip)
+r1 = Rule(nbhd, HasLessAlive(1), BinaryCell.turn_off)
+r2 = Rule(nbhd, HasMoreAlive(3), BinaryCell.id)
 
-r.apply(g)
+
+rs = RuleSet({r1, r2})
 
 g.display()
+
+t = 100
+
+while t > 0:
+     g1.display()
+     rs.apply(g1)
+     sleep(0.2)
+     t -= 1
+
 
 
 

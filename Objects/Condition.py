@@ -10,6 +10,16 @@ class Condition(Generic[TileType]):
 
 #Some special conditions:
 
-def HasMoreAlive(threshold: int, nbhd: Iterable[BinaryTile]) -> bool:
-    num_alive = sum([cell.state for cell in nbhd])
-    return num_alive > threshold
+class HasMoreAlive(Condition[BinaryTile]):
+    def __init__(self, threshold: int):
+        def func(nbhd: Iterable[BinaryTile]) -> bool:
+            num_alive = sum([cell.state for cell in nbhd])
+            return num_alive > threshold
+        super().__init__(func)
+
+class HasLessAlive(Condition[BinaryTile]):
+    def __init__(self, threshold: int):
+        def func(nbhd: Iterable[BinaryTile]) -> bool:
+            num_alive = sum([cell.state for cell in nbhd])
+            return num_alive < threshold
+        super().__init__(func)
