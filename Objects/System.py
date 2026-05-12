@@ -1,9 +1,31 @@
 from random import random
-from Objects.Cell import BinaryTile, BinaryCell, BinaryDud
+from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
+from typing import Any, Generic, TypeVar
 
+TileType = TypeVar('TileType')
+CellType = TypeVar('CellType')
 
-class Grid(dict[tuple[int, int], BinaryTile]):
-    def __init__(self, width: int=10, height: int=10, border_width: int=1, on_init: list|float=[], loop: bool=True):
+class System(dict[Any, TileType], Generic[TileType, CellType]):
+
+    def __init__(self, keys: list[Any], tiles: list[TileType], tile_type: type[TileType], cell_type: type[CellType]) -> None:
+        if len(set(keys)) < len(tiles):
+            raise ValueError('There must a unique key for every tile!')
+        if len(set(keys)) > len(tiles):
+            raise ValueError('There must be a tile for every unique key!')
+        for tile in tiles:
+            if not isinstance(tile, tile_type):
+                raise ValueError('All tiles must be of the same type!')
+        super().__init__(zip(keys, tiles))
+        
+        self.tile_type = tile_type
+        self.cell_type = cell_type
+    
+    @property
+    def zone(self) -> dict[Any, CellType]:
+        return {k: c for k, c in self.items() if isinstance(c, self.cell_type)}
+
+class Grid(System[BinaryTile, BinaryCell]):
+    def __init__(self, width: int=10, height: int=10, border_width: int=1, on_init: list|float=[], loop: bool=True):        
         self.bw = border_width
 
         xrange0 = range(-self.bw, width + self.bw)
@@ -12,31 +34,27 @@ class Grid(dict[tuple[int, int], BinaryTile]):
         keys = [(i,j) for i in xrange0 for j in yrange0]
         active_keys0 = [(i,j) for i in xrange0 if 0 <= i < width for j in yrange0 if 0 <= j < height]
 
-        values = []
+        cells = []
 
         if isinstance(on_init, float):
             for i in xrange0:
                 for j in yrange0:
                     if (i,j) in active_keys0:
-                        values.append(BinaryCell(on_init > random()))
-                    else: values.append(BinaryDud())
+                        cells.append(BinaryCell(on_init > random()))
+                    else: cells.append(BinaryDud())
         elif isinstance(on_init, list):
             for i in xrange0:
                 for j in yrange0:
                     if (i,j) not in active_keys0:
-                        values.append(BinaryDud())
+                        cells.append(BinaryDud())
                     elif (i,j) in on_init:
-                        values.append(BinaryCell(1))
+                        cells.append(BinaryCell(1))
                     else:
-                        values.append(BinaryCell(0))
+                        cells.append(BinaryCell(0))
         else:
             raise ValueError("on_init must be a float or a list of tuples!")
         
-        super().__init__(zip(keys, values))
-
-    @property
-    def zone(self):
-        return {k: c for k, c in self.items() if not isinstance(c, BinaryDud)}
+        super().__init__(keys, cells, BinaryTile, BinaryCell)
     
     def xrange(self, IncludeBorder: bool=False):
         return sorted({i for (i,j), c in self.items() if IncludeBorder or not isinstance(c, BinaryDud)})

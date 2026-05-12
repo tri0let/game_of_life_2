@@ -30,9 +30,18 @@ class BinaryCell(BinaryTile):
         else:
             return '.'
     
-    def set_state(self, value: int):
-        self.state = value
-        self.check_state()
+    # def set_state(self, value: int):
+    #     self.state = value
+    #     self.check_state()
+
+    def turn_on(self):
+        self.state = 1
+
+    def turn_off(self):
+        self.state = 0
+    
+    def flip(self):
+        self.state = (self.state + 1) % 2
 
 class BinaryDud(BinaryTile):
     def __init__(self) -> None:
