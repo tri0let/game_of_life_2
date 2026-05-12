@@ -1,8 +1,8 @@
 from random import random
-from Objects.Cell import State, Cell, Dud
+from Objects.Cell import BinaryTile, BinaryCell, BinaryDud
 
 
-class Grid(dict[tuple[int, int], Cell|Dud]):
+class Grid(dict[tuple[int, int], BinaryTile]):
     def __init__(self, width: int=10, height: int=10, border_width: int=1, on_init: list|float=[], loop: bool=True):
         self.bw = border_width
 
@@ -18,17 +18,17 @@ class Grid(dict[tuple[int, int], Cell|Dud]):
             for i in xrange0:
                 for j in yrange0:
                     if (i,j) in active_keys0:
-                        values.append(Cell(State(on_init > random())))
-                    else: values.append(Dud())
+                        values.append(BinaryCell(on_init > random()))
+                    else: values.append(BinaryDud())
         elif isinstance(on_init, list):
             for i in xrange0:
                 for j in yrange0:
                     if (i,j) not in active_keys0:
-                        values.append(Dud())
+                        values.append(BinaryDud())
                     elif (i,j) in on_init:
-                        values.append(Cell(State.ON))
+                        values.append(BinaryCell(1))
                     else:
-                        values.append(Cell(State.OFF))
+                        values.append(BinaryCell(0))
         else:
             raise ValueError("on_init must be a float or a list of tuples!")
         
@@ -36,13 +36,13 @@ class Grid(dict[tuple[int, int], Cell|Dud]):
 
     @property
     def zone(self):
-        return {k: c for k, c in self.items() if not isinstance(c, Dud)}
+        return {k: c for k, c in self.items() if not isinstance(c, BinaryDud)}
     
     def xrange(self, IncludeBorder: bool=False):
-        return sorted({i for (i,j), c in self.items() if IncludeBorder or not isinstance(c, Dud)})
+        return sorted({i for (i,j), c in self.items() if IncludeBorder or not isinstance(c, BinaryDud)})
     
     def yrange(self, IncludeBorder: bool=False):
-        return sorted({j for (i,j), c in self.items() if IncludeBorder or not isinstance(c, Dud)})
+        return sorted({j for (i,j), c in self.items() if IncludeBorder or not isinstance(c, BinaryDud)})
 
     def __str__(self):
         return str([[str(self[(i,j)].state) for i in self.xrange()] for j in self.yrange()])
@@ -70,8 +70,8 @@ class Grid(dict[tuple[int, int], Cell|Dud]):
         if not isinstance(self, dict):
             raise ValueError('This grid is somehow not a dictionary!')
         for key, cell in self.items():
-            if not isinstance(cell, Cell) and not isinstance(cell, Dud):
-                raise ValueError(f'Non-cell object in the grid: {cell}')
+            if not isinstance(cell, BinaryTile):
+                raise ValueError(f'Non-BinaryTile object in the grid: {cell}')
             if not isinstance(key, tuple):
                 raise ValueError(f'Non-tuple object in keys: {key}')
             if not isinstance(key[0], int) or not isinstance(key[1], int):
@@ -100,7 +100,7 @@ class Grid(dict[tuple[int, int], Cell|Dud]):
                     raise ValueError(f'The grid is not rectangular: {(i,j)} is empty')
         
         #Check if the border width is correct
-        border = [key for key, cell in self.items() if isinstance(cell, Dud)]
+        border = [key for key, cell in self.items() if isinstance(cell, BinaryDud)]
 
         theoretical_border_num = (
             (max(self.xrange(True)) - min(self.xrange(True)) + 1) *

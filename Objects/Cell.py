@@ -1,30 +1,42 @@
 from enum import Enum
+from typing import Any
 
-class State(Enum):
-    OFF = 0
-    ON = 1
+  
+class Tile:             #Base class for categorization purposes
+    def __init__(self, state: float):
+        self.state = state        
+
+class BinaryTile(Tile):
+    def __init__(self, state: int):
+        super().__init__(state)
+        if not isinstance(self.state, int):
+            raise ValueError(f'BinaryTile must have an integer state (state: {self.state})')
+        if self.state not in {0, 1}:
+            raise ValueError(f'BinaryTile must have a state of 0 or 1 (state: {self.state})')
+    
+    def check_state(self):
+        if not isinstance(self.state, int):
+            raise ValueError(f'BinaryTile must have an integer state (state: {self.state})')
+        if self.state not in {0, 1}:
+            raise ValueError(f'BinaryTile must have a state of 0 or 1 (state: {self.state})')
+
+class BinaryCell(BinaryTile):
+    def __init__(self, state: int):
+        super().__init__(state)
 
     def __str__(self):
-        return self.name
-    
-    def __add__(self, other):
-        return State((self.value + other.value) % 2)
-    
-    def __mul__(self, other):
-        return State(self.value * other.value)
-
-class Cell:
-    def __init__(self, state: State):
-        self.state = state
-
-    def __str__(self):
-        if self.state == State.ON:
+        if self.state == 1:
             return '■'
         else:
             return '.'
+    
+    def set_state(self, value: int):
+        self.state = value
+        self.check_state()
 
-class Dud:
-    def __init__(self):
-        self.state = State.OFF
+class BinaryDud(BinaryTile):
+    def __init__(self) -> None:
+        super().__init__(0)
+
     def __str__(self):
         return '~'
