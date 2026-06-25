@@ -18,18 +18,18 @@ for c in g.zone.values():
 g.display()
 
 def nbhd(system: Grid, key: tuple[int, int]):
-        nb = []
-        i = key[0]
-        j = key[1]
-        for J in range(j - 1, j + 1 + 1):
-            for I in range(i - 1, i + 1 + 1):
-                if (I,J) != (i,j):
-                    nb.append(system[(I % len(system.xrange()), J % len(system.yrange()))])
-        return nb
+    nb = []
+    i = key[0]
+    j = key[1]
+    for J in range(j - 1, j + 1 + 1):
+        for I in range(i - 1, i + 1 + 1):
+            if (I,J) != (i,j):
+                nb.append(system[(I % len(system.xrange()), J % len(system.yrange()))])
+    return nb
 
 
 
-r1 = Rule(nbhd, HasLessAlive(1), BinaryCell.turn_off)
+r1 = Rule(nbhd, HasLessAlive(10) or HasMoreAlive(0), BinaryCell.turn_off)
 r2 = Rule(nbhd, HasMoreAlive(3), BinaryCell.id)
 
 
