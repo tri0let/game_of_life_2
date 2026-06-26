@@ -9,6 +9,7 @@
 - A cell tile is a tile whose state can change according to a list of predefined outcomes, defined using class methods on that cell
 - A neighborhood function is a function from a tile to a list of tiles (from a cell to a list of cells?), called a neighborhood
 - A condition is a function from a neighborhood to either True or False
+- A state is a way of quantifying a neighborhood to be evaluated by a condition (for optimization purposes)
 - A rule is (still deciding):
     - a function from one grid to another based on the cells' outcomes
     - a function from a grid to a set of outcomes with the same shape as the grid

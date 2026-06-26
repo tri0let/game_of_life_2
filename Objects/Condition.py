@@ -3,45 +3,64 @@ from collections.abc import Callable, Sequence, Iterable
 from typing import Generic, TypeVar
 
 TileType = TypeVar('TileType')
+StateType = TypeVar('StateType')
 
-class Condition(Generic[TileType]):
-    def __init__(self, func: Callable[[Iterable[TileType]], bool]) -> None:
-        self.met = func
+class Condition(Generic[TileType, StateType]):
+    def __init__(self, get_state: Callable[[Iterable[TileType]], StateType], check_state: Callable[[StateType], bool]) -> None:
+        def met(nbhd: Iterable[TileType]):
+            return check_state(get_state(nbhd))
+        
+        self.get_state = get_state
+        self.check_state = check_state
+        self.met = met
+        self.state_type = StateType
 
     def __not__(self):
-        def not_met(nbhd):
-            return not self.met(nbhd) 
-        return Condition(not_met)
+        def not_met(state):
+            return not self.met(state)
+        return Condition(self.get_state, not_met)
     
     def __and__(self, other):
-        def both_met(nbhd):
-            return self.met(nbhd) and other.met(nbhd)
-        return Condition(both_met)
+        def both_met(state):
+            return self.met(state) and other.met(state)
+        return Condition(self.get_state, both_met)
     
     def __or__(self, other):
-        def either_met(nbhd):
-            return self.met(nbhd) or (other.met(nbhd))
-        return Condition(either_met)
+        def either_met(state):
+            return self.met(state) or (other.met(state))
+        return Condition(self.get_state, either_met)
 
 #Some special conditions:
 
-class HasMoreAlive(Condition[BinaryTile]):
+class HasMoreAlive(Condition[BinaryTile, int]):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def get_state(nbhd: Iterable[BinaryTile]) -> int:
             num_alive = sum([cell.state for cell in nbhd])
-            return num_alive > threshold
-        super().__init__(func)
+            if not isinstance(num_alive, int):
+                raise ValueError(f'num_alive must be an integer! Value: {num_alive}')
+            return num_alive
+        def check_met(state: int) -> bool:
+            return state > threshold
+        super().__init__(get_state, check_met)
 
-class HasLessAlive(Condition[BinaryTile]):
+class HasLessAlive(Condition[BinaryTile, int]):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def get_state(nbhd: Iterable[BinaryTile]) -> int:
             num_alive = sum([cell.state for cell in nbhd])
-            return num_alive < threshold
-        super().__init__(func)
+            if not isinstance(num_alive, int):
+                raise ValueError(f'num_alive must be an integer! Value: {num_alive}')
+            return num_alive
+        def check_met(state: int) -> bool:
+            return state < threshold
+        super().__init__(get_state, check_met)
 
-class HasAlive(Condition[BinaryTile]):
+class HasAlive(Condition[BinaryTile, int]):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def get_state(nbhd: Iterable[BinaryTile]) -> int:
             num_alive = sum([cell.state for cell in nbhd])
-            return num_alive == threshold
-        super().__init__(func)
+            if not isinstance(num_alive, int):
+                raise ValueError(f'num_alive must be an integer! Value: {num_alive}')
+            return num_alive
+        def check_met(state: int) -> bool:
+            return state == threshold
+        super().__init__(get_state, check_met)

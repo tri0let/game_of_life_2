@@ -8,12 +8,13 @@ from time_debug import timer
 SystemType = TypeVar('SystemType')
 TileType = TypeVar('TileType')
 CellType = TypeVar('CellType')
+StateType = TypeVar('StateType')
 
 class Rule(Generic[SystemType, TileType, CellType]):
     def __init__(
             self, 
             get_nbhd: Callable[[SystemType, Any], Iterable[TileType]],
-            cond: Condition[TileType],
+            cond: Condition[TileType, StateType],
             outcome: Callable[[CellType], None]
     ):
         self.get_nbhd = get_nbhd
@@ -63,9 +64,9 @@ class Rule(Generic[SystemType, TileType, CellType]):
             raise ValueError(f'The outcome must be a valid method of the cell type!')
 
         for key, bool in conditions_met.items():
-            if key not in system.zone:
-                raise ValueError(f'conditions_met somehow created an invalid key: {key}')
-            if bool:
+            if bool:    
+                if key not in system.zone:
+                    raise ValueError(f'conditions_met somehow created an invalid key: {key}')
                 self.outcome(system.zone[key])
 
     def force_apply(self, system: SystemType):
