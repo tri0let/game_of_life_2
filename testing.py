@@ -2,20 +2,8 @@ from Objects.Cell import *
 from Objects.System import *
 from Objects.Rule import *
 from Objects.Condition import *
-from time import sleep
-
-
-g = Grid(width=4, height=4, border_width=1, on_init=[(0,0), (1,1), (1,0)])
-g1 = Grid(width=10, height=10, on_init=0.4)
-
-g.display()
-
-g.check()
-
-for c in g.zone.values():
-    c.flip()
-
-g.display()
+from time import sleep, perf_counter
+import matplotlib.pyplot as plt
 
 def nbhd(system: Grid, key: tuple[int, int]):
     nb = []
@@ -27,25 +15,34 @@ def nbhd(system: Grid, key: tuple[int, int]):
                 nb.append(system[(I % len(system.xrange()), J % len(system.yrange()))])
     return nb
 
+r1 = Rule(nbhd, HasLessAlive(2), BinaryCell.turn_off)
+r2 = Rule(nbhd, HasMoreAlive(3), BinaryCell.turn_off)
+r3 = Rule(nbhd, HasAlive(3), BinaryCell.turn_on)
 
+rs = RuleSet([r1, r2, r3])
 
-r1 = Rule(nbhd, HasLessAlive(10) or HasMoreAlive(0), BinaryCell.turn_off)
-r2 = Rule(nbhd, HasMoreAlive(3), BinaryCell.id)
+times = []
+grid_sizes = []
 
+@timer
+def main(grid):
+    rs.apply(grid)
+    # sleep(0.1)
+    
 
-rs = RuleSet({r1, r2})
+for grid_size in range(2, 30):
+    grid = Grid(grid_size, grid_size)
+    print('=' * 100)
+    print(f'Grid size: {grid_size}')
+    start = perf_counter()
+    main(grid)
+    stop = perf_counter()
+    
+    times.append(stop - start)
+    grid_sizes.append(grid_size)
 
-g.display()
-
-t = 100
-
-while t > 0:
-     g1.display()
-     rs.apply(g1)
-     sleep(0.2)
-     t -= 1
-
-
+plt.plot(grid_sizes, times)
+plt.show()
 
 
 

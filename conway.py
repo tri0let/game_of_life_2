@@ -23,10 +23,14 @@ r3 = Rule(nbhd, HasAlive(3), BinaryCell.turn_on)
 
 rs = RuleSet([r1, r2, r3])
 
+@timer
+def main():
+    grid1.display()
+    rs.apply(grid1)
+    sleep(0.03)
+
 t = 100
 
 while t > 0:
-     grid.display()
-     rs.apply(grid)
-     sleep(0.1)
-     t -= 1
+    main()
+    t -= 1

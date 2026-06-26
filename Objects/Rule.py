@@ -3,6 +3,7 @@ from Objects.Cell import Tile
 from Objects.Condition import Condition
 from collections.abc import Callable, Sequence, Iterable
 from typing import Any, Generic, TypeVar
+from time_debug import timer
 
 SystemType = TypeVar('SystemType')
 TileType = TypeVar('TileType')
@@ -19,6 +20,7 @@ class Rule(Generic[SystemType, TileType, CellType]):
         self.condition = cond
         self.outcome = outcome
     
+    @timer
     def get_nbhds(self, system: SystemType) -> dict[Any, Iterable[TileType]]:
         nbhds = dict()
         if not isinstance(system, System):
@@ -29,6 +31,7 @@ class Rule(Generic[SystemType, TileType, CellType]):
     
         return nbhds
     
+    @timer
     def check_condition(
             self,
             system: SystemType
@@ -48,6 +51,7 @@ class Rule(Generic[SystemType, TileType, CellType]):
         
         return bool_dict
 
+    @timer
     def apply(
             self,
             system: SystemType,
@@ -80,6 +84,7 @@ class RuleSet(Generic[SystemType, TileType, CellType], list[Rule[SystemType, Til
     def is_consistent(self):
         return True
     
+    @timer
     def apply(self, system: SystemType):
         conditions_met = dict()
         for rule in self:

@@ -1,6 +1,7 @@
 from random import random
 from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
 from typing import Any, Generic, TypeVar
+from time_debug import timer
 
 TileType = TypeVar('TileType')
 CellType = TypeVar('CellType')
@@ -65,6 +66,7 @@ class Grid(System[BinaryTile, BinaryCell]):
     def __str__(self):
         return str([[str(self[(i,j)].state) for i in self.xrange()] for j in self.yrange()])
     
+    @timer
     def display(self, DisplayBorder: bool=True):
         for j in self.yrange(IncludeBorder=DisplayBorder):
             for i in self.xrange(IncludeBorder=DisplayBorder):
