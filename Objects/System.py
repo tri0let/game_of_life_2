@@ -56,7 +56,10 @@ class Grid(System[BinaryTile, BinaryCell]):
             raise ValueError("on_init must be a float or a list of tuples!")
         
         super().__init__(keys, cells, BinaryTile, BinaryCell)
-    
+
+        self.width = width
+        self.height = height
+
     def xrange(self, IncludeBorder: bool=False):
         return sorted({i for (i,j), c in self.items() if IncludeBorder or not isinstance(c, BinaryDud)})
     
@@ -66,14 +69,18 @@ class Grid(System[BinaryTile, BinaryCell]):
     def __str__(self):
         return str([[str(self[(i,j)].state) for i in self.xrange()] for j in self.yrange()])
     
-    @timer
+    # @timer
     def display(self, DisplayBorder: bool=True):
+        grid_str = ''
+
         for j in self.yrange(IncludeBorder=DisplayBorder):
             for i in self.xrange(IncludeBorder=DisplayBorder):
                 if i == max(self.xrange(IncludeBorder=DisplayBorder)):
-                    print(self[(i,j)])
+                    grid_str += f'{self[(i,j)]}\n'
                 else:
-                    print(f'{self[(i,j)]} ', end='')
+                    grid_str += f'{self[(i,j)]} '
+        
+        print(grid_str)
         
         print('=' * 50)
     

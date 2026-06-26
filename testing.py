@@ -5,6 +5,7 @@ from Objects.Condition import *
 from time import sleep, perf_counter
 import matplotlib.pyplot as plt
 
+# @timer
 def nbhd(system: Grid, key: tuple[int, int]):
     nb = []
     i = key[0]
@@ -12,7 +13,7 @@ def nbhd(system: Grid, key: tuple[int, int]):
     for J in range(j - 1, j + 1 + 1):
         for I in range(i - 1, i + 1 + 1):
             if (I,J) != (i,j):
-                nb.append(system[(I % len(system.xrange()), J % len(system.yrange()))])
+                nb.append(system[(I % system.width, J % system.height)])
     return nb
 
 r1 = Rule(nbhd, HasLessAlive(2), BinaryCell.turn_off)
@@ -30,8 +31,8 @@ def main(grid):
     # sleep(0.1)
     
 
-for grid_size in range(2, 30):
-    grid = Grid(grid_size, grid_size)
+for grid_size in range(2, 50):
+    grid = Grid(grid_size, grid_size, on_init=0.3)
     print('=' * 100)
     print(f'Grid size: {grid_size}')
     start = perf_counter()
@@ -43,7 +44,6 @@ for grid_size in range(2, 30):
 
 plt.plot(grid_sizes, times)
 plt.show()
-
 
 
 
