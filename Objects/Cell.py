@@ -34,16 +34,20 @@ class BinaryCell(BinaryTile):
     #     self.state = value
     #     self.check_state()
 
-    def turn_on(self):
-        self.state = 1
+    @staticmethod
+    def turn_on(cell):
+        cell.state = 1
 
-    def turn_off(self):
-        self.state = 0
+    @staticmethod
+    def turn_off(cell):
+        cell.state = 0
     
-    def flip(self):
-        self.state = (self.state + 1) % 2
+    @staticmethod
+    def flip(cell):
+        cell.state = (cell.state + 1) % 2
 
-    def id(self):
+    @staticmethod
+    def id(cell):
         pass
 
 class BinaryDud(BinaryTile):

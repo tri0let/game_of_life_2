@@ -13,11 +13,11 @@ g.display()
 g.check()
 
 for c in g.zone.values():
-    c.flip()
+    BinaryCell.flip(c)
 
 g.display()
 
-def nbhd(system: Grid, key: tuple[int, int]):
+def nbhd(system, key):
     nb = []
     i = key[0]
     j = key[1]
@@ -29,13 +29,11 @@ def nbhd(system: Grid, key: tuple[int, int]):
 
 
 
-r1 = Rule(nbhd, HasLessAlive(10) or HasMoreAlive(0), BinaryCell.turn_off)
+r1 = Rule(nbhd, HasAlive(4) or HasAlive(5), BinaryCell.flip)
 r2 = Rule(nbhd, HasMoreAlive(3), BinaryCell.id)
 
 
 rs = RuleSet({r1, r2})
-
-g.display()
 
 t = 100
 

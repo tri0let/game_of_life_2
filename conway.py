@@ -7,7 +7,7 @@ from time import sleep
 grid = Grid(10, 10, on_init=[(0,0), (0,2), (1,2), (1,1), (2,1)])
 grid1 = Grid(10, 10, on_init=0.3)
 
-def nbhd(system: Grid, key: tuple[int, int]):
+def nbhd(system, key):
     nb = []
     i = key[0]
     j = key[1]

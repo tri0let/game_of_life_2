@@ -2,12 +2,10 @@ from random import random
 from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
 from typing import Any, Generic, TypeVar
 
-TileType = TypeVar('TileType')
-CellType = TypeVar('CellType')
 
-class System(dict[Any, TileType], Generic[TileType, CellType]):
+class System(dict[Any, Any]):
 
-    def __init__(self, keys: list[Any], tiles: list[TileType], tile_type: type[TileType], cell_type: type[CellType]) -> None:
+    def __init__(self, keys: list[Any], tiles: list, tile_type: type, cell_type: type) -> None:
         if len(set(keys)) < len(tiles):
             raise ValueError('There must a unique key for every tile!')
         if len(set(keys)) > len(tiles):
@@ -21,10 +19,10 @@ class System(dict[Any, TileType], Generic[TileType, CellType]):
         self.cell_type = cell_type
     
     @property
-    def zone(self) -> dict[Any, CellType]:
+    def zone(self) -> dict:
         return {k: c for k, c in self.items() if isinstance(c, self.cell_type)}
 
-class Grid(System[BinaryTile, BinaryCell]):
+class Grid(System):
     def __init__(self, width: int=10, height: int=10, border_width: int=1, on_init: list|float=[], loop: bool=True):        
         self.bw = border_width
 

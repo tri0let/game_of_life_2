@@ -2,10 +2,8 @@ from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
 from collections.abc import Callable, Sequence, Iterable
 from typing import Generic, TypeVar
 
-TileType = TypeVar('TileType')
-
-class Condition(Generic[TileType]):
-    def __init__(self, func: Callable[[Iterable[TileType]], bool]) -> None:
+class Condition:
+    def __init__(self, func: Callable[[Iterable], bool]) -> None:
         self.met = func
 
     def __not__(self):
@@ -25,23 +23,23 @@ class Condition(Generic[TileType]):
 
 #Some special conditions:
 
-class HasMoreAlive(Condition[BinaryTile]):
+class HasMoreAlive(Condition):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def func(nbhd: Iterable) -> bool:
             num_alive = sum([cell.state for cell in nbhd])
             return num_alive > threshold
         super().__init__(func)
 
-class HasLessAlive(Condition[BinaryTile]):
+class HasLessAlive(Condition):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def func(nbhd: Iterable) -> bool:
             num_alive = sum([cell.state for cell in nbhd])
             return num_alive < threshold
         super().__init__(func)
 
-class HasAlive(Condition[BinaryTile]):
+class HasAlive(Condition):
     def __init__(self, threshold: int):
-        def func(nbhd: Iterable[BinaryTile]) -> bool:
+        def func(nbhd: Iterable) -> bool:
             num_alive = sum([cell.state for cell in nbhd])
             return num_alive == threshold
         super().__init__(func)
