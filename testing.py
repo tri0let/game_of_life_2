@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 # @timer
 def nbhd(system: Grid, key: tuple[int, int]):
     nb = []
-    i = key[0]
-    j = key[1]
+    i, j = key
     for J in range(j - 1, j + 1 + 1):
         for I in range(i - 1, i + 1 + 1):
             if (I,J) != (i,j):

@@ -47,8 +47,8 @@ class Rule(Generic[SystemType, TileType, CellType, StateType]):
         nbhds = self.get_nbhds(system)
 
         for key, nbhd in nbhds.items():
-            if key not in system.zone:
-                raise ValueError(f'get_nbhds somehow created an invalid key: {key}')
+            if key not in system.zone.keys():
+                raise ValueError(f'get_nbhds` somehow created an invalid key: {key}')
             state = self.condition.get_state(nbhd)
             state_dict.update({key: state})
         
@@ -95,7 +95,7 @@ class Rule(Generic[SystemType, TileType, CellType, StateType]):
 
         for key, bool in conditions_met.items():
             if bool:    
-                if key not in system.zone:
+                if key not in system.zone.keys():
                     raise ValueError(f'conditions_met somehow created an invalid key: {key}')
                 self.outcome(system.zone[key])
 
