@@ -80,9 +80,9 @@ class Grid(System[BinaryTile, BinaryCell]):
                 else:
                     grid_str += f'{self[(i,j)]} '
         
-        print(grid_str)
+        print('=' * (self.width + 2 * self.bw + 5) * 2 + '\n')
         
-        print('=' * 50)
+        print(grid_str)
     
     def nbhd(self, i: int, j: int, radius: int=1, exclude_center: bool=True):
         nb = []

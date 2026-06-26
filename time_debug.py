@@ -1,7 +1,7 @@
 import time
 import functools
 
-TIMING = True
+TIMING = False
 
 def timer(func):
     @functools.wraps(func)

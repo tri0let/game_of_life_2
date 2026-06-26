@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
   
 class Tile:             #Base class for categorization purposes
@@ -19,7 +19,7 @@ class BinaryTile(Tile):
             raise ValueError(f'BinaryTile must have an integer state (state: {self.state})')
         if self.state not in {0, 1}:
             raise ValueError(f'BinaryTile must have a state of 0 or 1 (state: {self.state})')
-
+        
 class BinaryCell(BinaryTile):
     def __init__(self, state: int):
         super().__init__(state)

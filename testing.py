@@ -32,7 +32,7 @@ def main(grid):
     
 
 for grid_size in range(2, 50):
-    grid = Grid(grid_size, grid_size, on_init=0.3)
+    grid = Grid(grid_size, grid_size, on_init=0.6)
     print('=' * 100)
     print(f'Grid size: {grid_size}')
     start = perf_counter()
