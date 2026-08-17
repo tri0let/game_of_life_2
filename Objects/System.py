@@ -1,12 +1,13 @@
 from random import random
 from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
 from typing import Any, Generic, TypeVar
+from collections import UserDict
 from time_debug import timer
 
 TileType = TypeVar('TileType')
 CellType = TypeVar('CellType')
 
-class System(dict[Any, TileType], Generic[TileType, CellType]):
+class System(UserDict[Any, TileType], Generic[TileType, CellType]):
 
     def __init__(self, keys: list[Any], tiles: list[TileType], tile_type: type[TileType], cell_type: type[CellType]) -> None:
         if len(set(keys)) < len(tiles):

@@ -4,6 +4,7 @@ from Objects.Rule import *
 from Objects.Condition import *
 from time import sleep, perf_counter
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 # @timer
 def nbhd(system: Grid, key: tuple[int, int]):
@@ -44,5 +45,11 @@ for grid_size in range(2, 50):
 plt.plot(grid_sizes, times)
 plt.show()
 
-
-
+g = Grid(10, 10, on_init=0.2)
+g.display()
+h = g
+i = deepcopy(g)
+rs.apply(g)
+g.display()
+h.display()
+i.display()
