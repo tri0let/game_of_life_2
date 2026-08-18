@@ -1,140 +1,139 @@
 from Objects.System import System, Grid
 from Objects.Cell import Tile, BinaryCell, BinaryTile
 from Objects.Condition import Condition, HasAlive, FalseCondition
+from Objects.Outcome import Outcome
 from collections.abc import Callable, Sequence, Iterable, Collection
 from typing import Any, Generic, TypeVar
 from time_debug import timer
 from functools import reduce
-from constants import APPLICABLE_STATES
 
-SystemType = TypeVar('SystemType')
-TileType = TypeVar('TileType')
-CellType = TypeVar('CellType')
-StateType = TypeVar('StateType')
-
-class Rule(Generic[SystemType, TileType, CellType, StateType]):
+class Rule:
     def __init__(
             self, 
-            get_nbhd: Callable[[SystemType, Any], Iterable[TileType]],
-            cond: Condition[TileType, StateType],
-            outcome: Callable[[CellType], None]
+            # get_nbhd takes a system and a bit position and outputs a bitmap
+            get_nbhd: Callable[[System, int], int], 
+            # a condition takes a nbhd (bitmap) and outputs a boolean
+            condition: Condition,
+            # an outcome takes a cell value and outputs another cell value
+            outcome: Outcome
     ):
+        if outcome.num_bits not in condition.valid_num_of_bits:
+            raise ValueError(f'The outcome applies to {outcome.num_bits} bits, while the condition only accepts {condition.valid_num_of_bits} bits')
+        
         self.get_nbhd = get_nbhd
-        self.condition = cond
+        self.condition = condition
         self.outcome = outcome
-        self.applicable_states = APPLICABLE_STATES[outcome]
     
-    @timer
-    def get_nbhds(self, system: SystemType) -> dict[Any, Iterable[TileType]]:
-        nbhds = dict()
-        if not isinstance(system, System):
-            raise ValueError(f'system must be a System, not {type(system)}!')
-        for key, cell in system.zone.items():
-            cell_nbhd = self.get_nbhd(system, key)
-            nbhds.update({key: cell_nbhd})
+    # @timer
+    # def get_nbhds(self, system) -> dict[Any, Iterable[TileType]]:
+    #     nbhds = dict()
+    #     if not isinstance(system, System):
+    #         raise ValueError(f'system must be a System, not {type(system)}!')
+    #     for key, cell in system.zone.items():
+    #         cell_nbhd = self.get_nbhd(system, key)
+    #         nbhds.update({key: cell_nbhd})
     
-        return nbhds
+    #     return nbhds
     
-    def get_states(
-            self,
-            system: SystemType
-    ) -> dict[Any, StateType]:
-        if not isinstance(system, System):
-            raise ValueError(f'system must be a System, not {type(system)}!')
+    # def get_states(
+    #         self,
+    #         system: SystemType
+    # ) -> dict[Any, StateType]:
+    #     if not isinstance(system, System):
+    #         raise ValueError(f'system must be a System, not {type(system)}!')
         
-        state_dict = dict()
+    #     state_dict = dict()
 
-        nbhds = self.get_nbhds(system)
+    #     nbhds = self.get_nbhds(system)
 
-        for key, nbhd in nbhds.items():
-            if key not in system.zone.keys():
-                raise ValueError(f'get_nbhds` somehow created an invalid key: {key}')
-            state = self.condition.get_state(nbhd)
-            state_dict.update({key: state})
+    #     for key, nbhd in nbhds.items():
+    #         if key not in system.zone.keys():
+    #             raise ValueError(f'get_nbhds` somehow created an invalid key: {key}')
+    #         state = self.condition.get_state(nbhd)
+    #         state_dict.update({key: state})
         
-        return state_dict
+    #     return state_dict
     
-    def check_states(
-            self,
-            system: SystemType,
-            state_dict: dict[Any, StateType]
-    ):
-        if not isinstance(system, System):
-            raise ValueError(f'system must be a System, not {type(system)}!')
+    # def check_states(
+    #         self,
+    #         system: SystemType,
+    #         state_dict: dict[Any, StateType]
+    # ):
+    #     if not isinstance(system, System):
+    #         raise ValueError(f'system must be a System, not {type(system)}!')
         
-        bool_dict = dict()
+    #     bool_dict = dict()
 
-        for key, state in state_dict.items():    
-            if system[key].state not in self.applicable_states:
-                bool_dict.update({key: False})
-            else:
-                condition_met = self.condition.check_state(state)
-                bool_dict.update({key: condition_met})
+    #     for key, state in state_dict.items():    
+    #         if system[key].state not in self.applicable_states:
+    #             bool_dict.update({key: False})
+    #         else:
+    #             condition_met = self.condition.check_state(state)
+    #             bool_dict.update({key: condition_met})
         
-        return bool_dict
+    #     return bool_dict
 
-    @timer
-    def condition_met(
-            self,
-            system: SystemType
-    ) -> dict[Any, bool]:
-        state_dict = self.get_states(system)
-        bool_dict = self.check_states(system, state_dict)
-        return bool_dict
+    # @timer
+    # def condition_met(
+    #         self,
+    #         system: SystemType
+    # ) -> dict[Any, bool]:
+    #     state_dict = self.get_states(system)
+    #     bool_dict = self.check_states(system, state_dict)
+    #     return bool_dict
 
-    @timer
-    def apply(
-            self,
-            system: SystemType,
-            conditions_met: dict[Any, bool]
-        ) -> None:
-        if not isinstance(system, System):
-            raise ValueError(f'system must be a System, not {type(system)}!')
-        if not hasattr(system.cell_type, self.outcome.__name__):
-            raise ValueError(f'The outcome must be a valid method of the cell type!')
+    # @timer
+    # def apply(
+    #         self,
+    #         system: SystemType,
+    #         conditions_met: dict[Any, bool]
+    #     ) -> None:
+    #     if not isinstance(system, System):
+    #         raise ValueError(f'system must be a System, not {type(system)}!')
+    #     if not hasattr(system.cell_type, self.outcome.__name__):
+    #         raise ValueError(f'The outcome must be a valid method of the cell type!')
 
-        for key, bool in conditions_met.items():
-            if bool:    
-                if key not in system.zone.keys():
-                    raise ValueError(f'conditions_met somehow created an invalid key: {key}')
-                self.outcome(system.zone[key])
+    #     for key, bool in conditions_met.items():
+    #         if bool:    
+    #             if key not in system.zone.keys():
+    #                 raise ValueError(f'conditions_met somehow created an invalid key: {key}')
+    #             self.outcome(system.zone[key])
 
-    def force_apply(self, system: SystemType):
-        condition_met = self.condition_met(system)
-        self.apply(system, condition_met)
+    # def force_apply(self, system: SystemType):
+    #     condition_met = self.condition_met(system)
+    #     self.apply(system, condition_met)
 
 
-class RuleSet(Generic[SystemType, TileType, CellType, StateType], dict[str, list[Rule[SystemType, TileType, CellType, StateType]]]):
-    def __init__(self, rules: Sequence[Rule[SystemType, TileType, CellType, StateType]]):
+class RuleSet:
+    def __init__(self, rules: Sequence[Rule]):
         if len(rules):
             self.num_rules = len(rules)
         else:
             raise ValueError(f'A RuleSet must have at least one rule!')
         
-        state_descriptions = set()
+        # state_descriptions = set()
 
-        for rule in rules:
-            state_descriptions.add(rule.condition.state_description)
+        # for rule in rules:
+        #     state_descriptions.add(rule.condition.state_description)
         
-        state_descriptions = list(state_descriptions)
+        # state_descriptions = list(state_descriptions)
 
-        rule_categories_by_description: list[list[Rule[SystemType, TileType, CellType, StateType]]] = []
+        # rule_categories_by_description: list[list[Rule[SystemType, TileType, CellType, StateType]]] = []
         
-        for sd in state_descriptions:
-            compatible_rules: list[Rule[SystemType, TileType, CellType, StateType]] = []
-            for rule in rules:
-                if rule.condition.state_description == sd:
-                    compatible_rules.append(rule)
-            rule_categories_by_description.append(compatible_rules)
+        # for sd in state_descriptions:
+        #     compatible_rules: list[Rule[SystemType, TileType, CellType, StateType]] = []
+        #     for rule in rules:
+        #         if rule.condition.state_description == sd:
+        #             compatible_rules.append(rule)
+        #     rule_categories_by_description.append(compatible_rules)
         
-        super().__init__(zip(state_descriptions, rule_categories_by_description))
-            
+        self.rules = rules  
 
     def is_consistent(self):
         return True
     
     @timer
-    def apply(self, system: SystemType):
+    def apply(self, system: System):
         conditions_met = dict()
         for rule_category in self.values():
             system_state = rule_category[0].get_states(system)

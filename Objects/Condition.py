@@ -1,20 +1,17 @@
 from Objects.Cell import Tile, BinaryTile, BinaryCell, BinaryDud
 from collections.abc import Callable, Sequence, Iterable
 from typing import Generic, TypeVar
+from bitmap_operations import *
 
-TileType = TypeVar('TileType')
-StateType = TypeVar('StateType')
-
-class Condition(Generic[TileType, StateType]):
-    def __init__(self, get_state: Callable[[Iterable[TileType]], StateType], check_state: Callable[[StateType], bool]) -> None:
-        def met(nbhd: Iterable[TileType]):
+class Condition:
+    def __init__(self, get_state: Callable[[int], int], check_state: Callable[[int], bool]) -> None:
+        def met(nbhd: int): # nbhd is the system bitmap "and"-ed with another bitmap
             return check_state(get_state(nbhd))
         
         self.get_state = get_state
         self.check_state = check_state
         self.met = met
-        self.state_type = StateType
-        self.state_description = 'unknown'
+        self.valid_num_of_bits = {}
 
     def __not__(self):
         def not_met(state):
@@ -33,15 +30,13 @@ class Condition(Generic[TileType, StateType]):
 
 #Some special conditions:
 
-class CountAliveCells(Condition[BinaryTile, int]):
+class CountAliveCells(Condition):
     def __init__(self, check_state: Callable[[int], bool]):
         def sum_of_states(nbhd):
-            num_alive = sum([cell.state for cell in nbhd])
-            if not isinstance(num_alive, int):
-                raise ValueError(f'num_alive must be an integer! Value: {num_alive}')
-            return num_alive
+            return sum_bits(bitmap=nbhd)
         super().__init__(get_state=sum_of_states, check_state=check_state)
         self.state_description = 'sum of states'
+        self.valid_num_of_bits = {1}
 
 class FalseCondition(CountAliveCells):
     def __init__(self):
@@ -51,18 +46,18 @@ class FalseCondition(CountAliveCells):
 
 class HasMoreAlive(CountAliveCells):
     def __init__(self, threshold: int):
-        def check_state(state: int) -> bool:
-            return state > threshold
+        def check_state(alive_cells: int) -> bool:
+            return alive_cells > threshold
         super().__init__(check_state)
 
 class HasLessAlive(CountAliveCells):
     def __init__(self, threshold: int):
-        def check_state(state: int) -> bool:
-            return state < threshold
+        def check_state(alive_cells: int) -> bool:
+            return alive_cells < threshold
         super().__init__(check_state)
 
 class HasAlive(CountAliveCells):
     def __init__(self, threshold: int):
-        def check_state(state: int) -> bool:
-            return state == threshold
+        def check_state(alive_cells: int) -> bool:
+            return alive_cells == threshold
         super().__init__(check_state)
